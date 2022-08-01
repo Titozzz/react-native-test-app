@@ -25,6 +25,14 @@ def app_config(project_root)
   [manifest['name'], manifest['displayName'], manifest['version'], manifest['singleApp']]
 end
 
+def apply_config_plugins(project_root)
+  resolve_module('@expo/config-plugins')
+  apply_config_plugins = File.join(__dir__, '..', 'scripts', 'apply-config-plugins.mjs')
+  system("node \"#{apply_config_plugins}\" \"#{project_root}\"")
+rescue StandardError
+  # Skip if `@expo/config-plugins` cannot be found
+end
+
 def autolink_script_path
   package_path = resolve_module('@react-native-community/cli-platform-ios')
   File.join(package_path, 'native_modules')
@@ -450,6 +458,8 @@ def use_test_app_internal!(target_platform, options)
         end
       end
     end
+
+    apply_config_plugins(project_root)
 
     Pod::UI.notice(
       "`#{xcodeproj}` was sourced from `react-native-test-app`. " \
