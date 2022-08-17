@@ -15,7 +15,7 @@ plugins {
 // https://github.com/react-native-community/cli/blob/6cf12b00c02aca6d4bc843446394331d71a9749e/packages/platform-android/src/commands/runAndroid/index.ts#L180
 buildDir = "${rootDir}/${name}/build"
 
-def reactNativeDir = findNodeModulesPath("react-native", rootDir)
+def reactNativeDir = file(findNodeModulesPath("react-native", rootDir))
 def reactNativeVersion = getPackageVersionNumber("react-native", rootDir)
 
 repositories {
@@ -256,8 +256,8 @@ dependencies {
         // TODO: Remove this block when we drop support for 0.68.
         if (reactNativeVersion < 6900) {
             def hermesEngineDir =
-                findNodeModulesPath("hermes-engine", file(reactNativeDir))
-                    ?: findNodeModulesPath("hermesvm", file(reactNativeDir))
+                findNodeModulesPath("hermes-engine", reactNativeDir)
+                    ?: findNodeModulesPath("hermesvm", reactNativeDir)
             if (hermesEngineDir == null) {
                 throw new GradleException("Could not find 'hermes-engine'. Please make sure you've added it to 'package.json'.")
             }
@@ -272,7 +272,7 @@ dependencies {
         }
     }
 
-    if (buildReactNativeFromSource(rootDir)) {
+    if (project.ext.react.enableNewArchitecture) {
         implementation project(":ReactAndroid")
     } else {
         implementation "com.facebook.react:react-native:+"
